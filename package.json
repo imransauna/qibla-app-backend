@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "supertokens-node": "^8.8.3",
-    "pg": "^8.11.0"
-  }
+"dependencies": {
+  "express": "^4.18.2",
+  "supertokens-node": "^12.0.0",
+  "pg": "^8.11.0"
+}
 }
