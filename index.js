@@ -102,6 +102,36 @@ app.get("/api/get-zip", (req, res) => {
   }
 });
 
+
+app.post("/api/feed_user", (req, res) => {
+  const { email, pass = null, type } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+  if (!type) return res.status(400).json({ error: "Type is required" });
+
+  // Check if user already exists
+  const existingUser = users.find(u => u.email === email);
+  if (existingUser) {
+    return res.status(400).json({ error: "User already exists" });
+  }
+
+  // Save user
+  users.push({ email, pass, type });
+  res.json({ message: "User added successfully", user: { email, pass, type } });
+});
+
+// 2. Check user API
+app.get("/api/checkuser", (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: "Email query parameter is required" });
+
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  res.json({ user });
+});
+
+
 // SuperTokens error handler
 app.use(errorHandler());
 
