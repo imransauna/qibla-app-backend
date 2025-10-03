@@ -12,7 +12,7 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({ 
     status: "OK", 
-    message: "Qibla App Backend is running!",
+    message: "Qibla App Backend is running! By girijesh",
     timestamp: new Date().toISOString()
   });
 });
