@@ -58,12 +58,44 @@ app.post("/api/upload-zip", upload.single("file"), (req, res) => {
     if (!email) return res.status(400).json({ error: "Email parameter is required" });
     if (!req.file) return res.status(400).json({ error: "ZIP file is required" });
 
+    // Store mapping of email to filename (simple JSON file)
+    const dbFile = path.join(uploadPath, "file-mapping.json");
+    let fileMapping = {};
+    if (fs.existsSync(dbFile)) {
+      fileMapping = JSON.parse(fs.readFileSync(dbFile, "utf-8"));
+    }
+    fileMapping[email] = req.file.filename;
+    fs.writeFileSync(dbFile, JSON.stringify(fileMapping, null, 2));
+
     res.json({
       message: "File uploaded successfully",
       email,
       fileName: req.file.filename,
       filePath: req.file.path
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET API to download ZIP file by email
+app.get("/api/get-zip", (req, res) => {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).json({ error: "Email query parameter is required" });
+
+    const dbFile = path.join(uploadPath, "file-mapping.json");
+    if (!fs.existsSync(dbFile)) return res.status(404).json({ error: "No files found" });
+
+    const fileMapping = JSON.parse(fs.readFileSync(dbFile, "utf-8"));
+    const fileName = fileMapping[email];
+    if (!fileName) return res.status(404).json({ error: "No file found for this email" });
+
+    const filePath = path.join(uploadPath, fileName);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "File not found on server" });
+
+    res.download(filePath, fileName); // Trigger file download
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
